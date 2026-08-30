@@ -1,0 +1,19 @@
+from datetime import datetime
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
+from app.db.database import Base
+
+class Team(Base):
+    __tablename__="teams"; id: Mapped[int]=mapped_column(primary_key=True); name: Mapped[str]=mapped_column(String(100))
+class Match(Base):
+    __tablename__="matches"; id: Mapped[int]=mapped_column(primary_key=True); opponent: Mapped[str]=mapped_column(String(100)); date: Mapped[str]=mapped_column(String(10)); venue: Mapped[str]=mapped_column(String(100)); competition: Mapped[str]=mapped_column(String(50)); result: Mapped[str]=mapped_column(String(10)); status: Mapped[str]=mapped_column(default="Complete")
+class Player(Base):
+    __tablename__="players"; id: Mapped[int]=mapped_column(primary_key=True); team_id: Mapped[int]=mapped_column(ForeignKey("teams.id")); number: Mapped[int]; name: Mapped[str]=mapped_column(String(100)); role: Mapped[str]=mapped_column(String(30))
+class SetPiece(Base):
+    __tablename__="set_pieces"; id: Mapped[int]=mapped_column(primary_key=True); match_id: Mapped[int]=mapped_column(ForeignKey("matches.id")); type: Mapped[str]=mapped_column(String(20)); attacking_team: Mapped[str]=mapped_column(String(100)); defending_team: Mapped[str]=mapped_column(String(100)); period: Mapped[int]=mapped_column(default=1); minute: Mapped[int]=mapped_column(default=0); second: Mapped[int]=mapped_column(default=0); score_for: Mapped[int]=mapped_column(default=0); score_against: Mapped[int]=mapped_column(default=0); video_start_time: Mapped[float]=mapped_column(default=0); video_end_time: Mapped[float]=mapped_column(default=5); analyst_status: Mapped[str]=mapped_column(default="tagged"); notes: Mapped[str]=mapped_column(Text,default=""); created_at: Mapped[datetime]=mapped_column(DateTime,default=datetime.utcnow); updated_at: Mapped[datetime]=mapped_column(DateTime,default=datetime.utcnow)
+class Corner(Base):
+    __tablename__="corners"; id: Mapped[int]=mapped_column(ForeignKey("set_pieces.id"),primary_key=True); side: Mapped[str]=mapped_column(String(10)); delivery: Mapped[str]=mapped_column(String(20)); delivery_zone: Mapped[str]=mapped_column(String(30)); routine_family: Mapped[str]=mapped_column(String(50)); defensive_scheme: Mapped[str]=mapped_column(String(20)); first_contact_team: Mapped[str]=mapped_column(String(100)); shot: Mapped[bool]=mapped_column(Boolean); shot_xg: Mapped[float]=mapped_column(Float,default=0); goal: Mapped[bool]=mapped_column(Boolean); possession_retained: Mapped[bool]=mapped_column(Boolean); counterattack_conceded: Mapped[bool]=mapped_column(Boolean)
+class Penalty(Base):
+    __tablename__="penalties"; id: Mapped[int]=mapped_column(ForeignKey("set_pieces.id"),primary_key=True); penalty_context: Mapped[str]=mapped_column(String(20)); shootout_round: Mapped[int|None]=mapped_column(nullable=True); taker_id: Mapped[int]=mapped_column(ForeignKey("players.id")); goalkeeper_id: Mapped[int]=mapped_column(ForeignKey("players.id")); outcome: Mapped[str]=mapped_column(String(20)); goal_x: Mapped[float]=mapped_column(Float); goal_z: Mapped[float]=mapped_column(Float); shot_direction: Mapped[str]=mapped_column(String(10)); shot_height: Mapped[str]=mapped_column(String(10)); goalkeeper_dive_direction: Mapped[str]=mapped_column(String(10)); estimated_speed: Mapped[float]=mapped_column(Float); runup_length: Mapped[float]=mapped_column(Float)
+class Finding(Base):
+    __tablename__="findings"; id: Mapped[int]=mapped_column(primary_key=True); match_id: Mapped[int]=mapped_column(ForeignKey("matches.id")); set_piece_id: Mapped[int|None]=mapped_column(ForeignKey("set_pieces.id"),nullable=True); title: Mapped[str]=mapped_column(String(100)); description: Mapped[str]=mapped_column(Text); confidence: Mapped[str]=mapped_column(String(20)); sample_size: Mapped[int]
